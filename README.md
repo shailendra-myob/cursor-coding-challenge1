@@ -45,3 +45,7 @@ assets/          # Folder containing game assets
 - If the game assets fail to load, placeholder graphics will be used.
 - Ensure the browser supports HTML5 Canvas for optimal performance.
 
+##Screenshot
+<img width="1664" alt="Screenshot 2025-05-05 at 9 40 32 pm" src="https://github.com/user-attachments/assets/43bf8126-c91c-4f0d-8a04-1d5d702fae41" />
+
+
