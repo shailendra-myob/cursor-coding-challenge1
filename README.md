@@ -7,15 +7,6 @@ This is a retro-themed endless runner game built using HTML5 Canvas and vanilla 
 - **Retro Aesthetic**: 16-bit pixel art style with MYOB brand colors.
 - **Score Tracking**: Keep track of your score as you collect coins.
 - **Difficulty Progression**: The game gradually increases in speed over time.
-- **Power-Up Mechanic**: Collect 20 coins to activate a temporary speed boost and sprite change.
-
-## How to Play
-1. **Controls**:
-   - Press the `Spacebar` or `Arrow Up` key to jump.
-   - Avoid enemies and collect coins to increase your score.
-2. **Objective**:
-   - Survive as long as possible while collecting coins and avoiding obstacles.
-   - Activate the "MYOB Business Power-Up" by collecting 20 coins.
 
 ## How to Run the Game
 1. **Clone the Repository**:
@@ -45,18 +36,12 @@ style.css        # CSS for styling the game
 main.js          # JavaScript logic for the game
 assets/          # Folder containing game assets
   bg.jpg         # Background image
-  coin.jpg       # Coin sprite
-  enemy.jpg      # Enemy sprite
-  player.jpg     # Player sprite
+  coin.png       # Coin sprite
+  enemy.png      # Enemy sprite
+  player.png     # Player sprite
 ```
 
 ## Known Issues
 - If the game assets fail to load, placeholder graphics will be used.
 - Ensure the browser supports HTML5 Canvas for optimal performance.
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-## Acknowledgments
-- Inspired by classic platformer games.
-- MYOB branding and theme integration.
