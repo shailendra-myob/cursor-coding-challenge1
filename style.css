@@ -1,0 +1,14 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #1a0033;
+  overflow: hidden;
+}
+#gameCanvas {
+  display: block;
+  margin: 0 auto;
+  background: #2d004d;
+  width: 100vw;
+  height: 100vh;
+}
