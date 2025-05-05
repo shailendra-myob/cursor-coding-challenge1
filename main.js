@@ -6,15 +6,16 @@
 const GAME_WIDTH = 480;
 const GAME_HEIGHT = 270;
 const GROUND_Y = GAME_HEIGHT - 48;
-const GRAVITY = 0.7;
-const JUMP_VELOCITY = -12;
-const PLAYER_WIDTH = 32;
-const PLAYER_HEIGHT = 40;
+const GRAVITY = 0.5; // Reduced gravity for a more gradual descent
+const JUMP_VELOCITY = -12; // Slightly reduced for smoother jump arc
+const MAX_JUMP_COUNT = 2; // Allow double jumps
+const PLAYER_WIDTH = 50;
+const PLAYER_HEIGHT = 45;
 const COIN_SIZE = 20;
-const ENEMY_SIZE = 32;
+const ENEMY_SIZE = 22;
 const BG_SPEED = 2;
-const INITIAL_SPEED = 4;
-const SPEED_INCREMENT = 0.5;
+const INITIAL_SPEED = 2; // Reduced from 4 to 2 for a slower start
+const SPEED_INCREMENT = 0.2; // Reduced from 0.5 to 0.2 for gradual increase
 const DIFFICULTY_INTERVAL = 15; // seconds
 const POWERUP_DURATION = 10000; // ms
 const COINS_FOR_POWERUP = 20;
@@ -22,10 +23,10 @@ const FPS = 60;
 
 // --- Asset Placeholders (use rectangles if images not loaded) ---
 const assets = {
+  bg: null,
   player: null,
   coin: null,
-  enemy: null,
-  bg: null
+  enemy: null
 };
 
 // --- Game State ---
@@ -44,39 +45,40 @@ function randInt(min, max) {
 function loadAssets(callback) {
   let loaded = 0, total = 4;
   function onLoad() { if (++loaded === total) callback(); }
-  // Player
-  assets.player = new Image();
-  assets.player.src = 'assets/player.jpg';
-  assets.player.onload = onLoad;
-  assets.player.onerror = onLoad;
-  // Coin
-  assets.coin = new Image();
-  assets.coin.src = 'assets/coin.jpg';
-  assets.coin.onload = onLoad;
-  assets.coin.onerror = onLoad;
-  // Enemy
-  assets.enemy = new Image();
-  assets.enemy.src = 'assets/enemy.jpg';
-  assets.enemy.onload = onLoad;
-  assets.enemy.onerror = onLoad;
   // Background
   assets.bg = new Image();
   assets.bg.src = 'assets/bg.jpg';
   assets.bg.onload = onLoad;
   assets.bg.onerror = onLoad;
+  // Player
+  assets.player = new Image();
+  assets.player.src = 'assets/player.png';
+  assets.player.onload = onLoad;
+  assets.player.onerror = onLoad;
+  // Coin
+  assets.coin = new Image();
+  assets.coin.src = 'assets/coin.png';
+  assets.coin.onload = onLoad;
+  assets.coin.onerror = onLoad;
+  // Enemy
+  assets.enemy = new Image();
+  assets.enemy.src = 'assets/enemy.png';
+  assets.enemy.onload = onLoad;
+  assets.enemy.onerror = onLoad;
 }
 
 // --- Game Object Constructors ---
+// Adjust the player's y-position to bring it lower
 function createPlayer() {
   return {
     x: 60,
-    y: GROUND_Y - PLAYER_HEIGHT,
+    y: GROUND_Y - PLAYER_HEIGHT + 10, // Lowered by 5 more units
     vy: 0,
     width: PLAYER_WIDTH,
     height: PLAYER_HEIGHT,
     jumping: false,
-    sprite: assets.player,
-    powerup: false
+    powerup: false,
+    jumpCount: 0 // Track jump count for double jumps
   };
 }
 
@@ -85,7 +87,6 @@ function createCoin() {
     x: GAME_WIDTH + randInt(0, 100),
     y: GROUND_Y - COIN_SIZE - randInt(0, 60),
     size: COIN_SIZE,
-    sprite: assets.coin,
     collected: false
   };
 }
@@ -95,7 +96,6 @@ function createEnemy() {
     x: GAME_WIDTH + randInt(0, 100),
     y: GROUND_Y - ENEMY_SIZE,
     size: ENEMY_SIZE,
-    sprite: assets.enemy,
     passed: false
   };
 }
@@ -116,9 +116,10 @@ function resetGame() {
 
 // --- Input Handling ---
 function handleKeyDown(e) {
-  if ((e.code === 'Space' || e.code === 'ArrowUp') && !player.jumping && gameState === 'running') {
+  if ((e.code === 'Space' || e.code === 'ArrowUp') && player.jumpCount < MAX_JUMP_COUNT && gameState === 'running') {
     player.vy = JUMP_VELOCITY;
     player.jumping = true;
+    player.jumpCount++;
   }
   if (gameState === 'gameover' && (e.code === 'Space' || e.code === 'Enter')) {
     resetGame();
@@ -148,7 +149,7 @@ function update(delta) {
   // Difficulty progression
   difficultyTimer += delta;
   if (difficultyTimer > DIFFICULTY_INTERVAL * 1000) {
-    speed += SPEED_INCREMENT;
+    speed += SPEED_INCREMENT; // Gradually increase speed
     difficultyTimer = 0;
   }
 
@@ -163,6 +164,7 @@ function update(delta) {
     player.y = GROUND_Y - player.height;
     player.vy = 0;
     player.jumping = false;
+    player.jumpCount = 0; // Reset jump count when player lands
   }
 
   // Power-up logic
@@ -217,6 +219,44 @@ function update(delta) {
 }
 
 // --- Drawing Logic ---
+function drawPlayer(ctx, x, y, width, height, powerup) {
+  if (assets.player && assets.player.complete) {
+    ctx.filter = 'brightness(1.5)'; // Increase brightness
+    ctx.drawImage(assets.player, x, y, width, height);
+    ctx.filter = 'none'; // Reset filter
+  } else {
+    // Fallback: Draw a placeholder rectangle if the image is not loaded
+    ctx.fillStyle = powerup ? '#ffeb3b' : '#8e24aa';
+    ctx.fillRect(x, y, width, height);
+  }
+}
+
+function drawCoin(ctx, x, y, size) {
+  if (assets.coin && assets.coin.complete) {
+    ctx.filter = 'brightness(1.5)'; // Increase brightness
+    ctx.drawImage(assets.coin, x, y, size, size);
+    ctx.filter = 'none'; // Reset filter
+  } else {
+    // Fallback: Draw a placeholder circle if the image is not loaded
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath();
+    ctx.arc(x + size / 2, y + size / 2, size / 2, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+}
+
+function drawEnemy(ctx, x, y, size) {
+  if (assets.enemy && assets.enemy.complete) {
+    ctx.filter = 'brightness(1.5)'; // Increase brightness
+    ctx.drawImage(assets.enemy, x, y, size, size);
+    ctx.filter = 'none'; // Reset filter
+  } else {
+    // Fallback: Draw a placeholder rectangle if the image is not loaded
+    ctx.fillStyle = '#ff1744';
+    ctx.fillRect(x, y, size, size);
+  }
+}
+
 function draw() {
   // Scale canvas to window
   resizeCanvas();
@@ -239,41 +279,16 @@ function draw() {
   ctx.fillRect(0, GROUND_Y, GAME_WIDTH, 48);
 
   // Draw player
-  if (assets.player && assets.player.complete) {
-    ctx.save();
-    if (player.powerup) ctx.globalAlpha = 0.7;
-    ctx.drawImage(assets.player, player.x, player.y, player.width, player.height);
-    ctx.restore();
-  } else {
-    ctx.fillStyle = player.powerup ? '#ffeb3b' : '#8e24aa';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-  }
+  drawPlayer(ctx, player.x, player.y, player.width, player.height, player.powerup);
 
   // Draw coins
   for (let coin of coins) {
-    if (assets.coin && assets.coin.complete) {
-      ctx.drawImage(assets.coin, coin.x, coin.y, coin.size, coin.size);
-    } else {
-      ctx.fillStyle = '#d1c4e9';
-      ctx.beginPath();
-      ctx.arc(coin.x + coin.size / 2, coin.y + coin.size / 2, coin.size / 2, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.strokeStyle = '#6f2da8';
-      ctx.stroke();
-    }
+    drawCoin(ctx, coin.x, coin.y, coin.size);
   }
 
   // Draw enemies
   for (let enemy of enemies) {
-    if (assets.enemy && assets.enemy.complete) {
-      ctx.drawImage(assets.enemy, enemy.x, enemy.y, enemy.size, enemy.size);
-    } else {
-      ctx.fillStyle = '#ff1744';
-      ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 12px monospace';
-      ctx.fillText('TAX', enemy.x + 4, enemy.y + 20);
-    }
+    drawEnemy(ctx, enemy.x, enemy.y, enemy.size);
   }
 
   // Draw score
