@@ -1,12 +1,16 @@
 # MYOB Endless Runner Mini-Game
 
-This is a retro-themed endless runner game built using HTML5 Canvas and vanilla JavaScript. The game features a 90s pixel art aesthetic and is inspired by classic platformers like Mario and Flappy Bird. The theme combines MYOB Business branding with a fun and engaging gameplay experience.
+This is a retro-themed endless runner game built using HTML5 Canvas and vanilla JavaScript. The game features a 90s pixel art aesthetic and is inspired by classic platformers like Mario and Flappy Bird.
 
-## Features
-- **Endless Runner Gameplay**: The player auto-runs and can jump to collect coins and avoid obstacles.
-- **Retro Aesthetic**: 16-bit pixel art style with MYOB brand colors.
-- **Score Tracking**: Keep track of your score as you collect coins.
-- **Difficulty Progression**: The game gradually increases in speed over time.
+## Prompt Used
+- I need a simple endless runner browser game implemented using HTML5 Canvas and vanilla JavaScript with a 90s retro 16-bit pixel art aesthetic, inspired by games like Mario or Flappy Bird.
+  The theme is purple and visuals should reflect early 90s arcade games, using pixel art.
+- Gameplay Mechanics:
+   Continuous side-scrolling from right to left.
+   The player auto-runs and can jump with the keyboard (spacebar or arrow up).
+   The goal is to collect coins and avoid obstacles/enemies.
+   Colliding with enemies ends the game ("Game Over" screen with score).
+   Include score tracking, difficulty progression (increasing speed/obstacles over time).
 
 ## How to Run the Game
 1. **Clone the Repository**:
